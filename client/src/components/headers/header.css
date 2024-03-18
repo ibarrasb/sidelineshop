@@ -6,7 +6,7 @@ header{
     flex-wrap: wrap;
     justify-content: space-around;
     align-items: center;
-    border-bottom: 1px solid #ddd;
+    
     
 }
 header .logo{
@@ -23,8 +23,10 @@ header .logo{
 
 header a{
     
-    color: #3F46CB ;
-    
+   color: black;
+}
+a.sideline{
+    color: #dad7cd
 }
 header ul li{
     display: inline-block;
@@ -52,6 +54,3 @@ header ul li:hover{
     font-size: 10px;
 }
 
-header ul{
-    background-color: #DEE5B7;
-}

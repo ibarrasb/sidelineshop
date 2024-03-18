@@ -30,7 +30,7 @@ const URI = process.env.MONGODB_URL;
 async function connectToMongo() {
   try {
     await mongoose.connect(URI, {
-      useNewUrlParser: true,
+      
       useUnifiedTopology: true,
     });
     console.log('Connected to MongoDB');
