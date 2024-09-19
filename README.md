@@ -14,7 +14,7 @@ Use the admin credentials to create, delete, update, or view any product, or you
 - user: admin@sidelineshop.com
 - password: admin123
 
-## PURCHASE USING PAYPAL
+## PURCHASE USING PAYPAL (obsolete)
 To check out in the cart, use the credentials below to simulate a purchase. You are then able to view your orders in the 'history' tab
 
 - user: sb-i43ett6526353@personal.example.com
