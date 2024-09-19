@@ -11,8 +11,8 @@ Sideline shop is a e-commerce inspired web application that is based on sports. 
 ## ADMIN LOGIN
 Use the admin credentials to create, delete, update, or view any product, or you can make your own account to be able to test the shop for yourself
 
-- user: admin@sideline.com
-- password: 12345678
+- user: admin@sidelineshop.com
+- password: admin123
 
 ## PURCHASE USING PAYPAL
 To check out in the cart, use the credentials below to simulate a purchase. You are then able to view your orders in the 'history' tab
