@@ -1,120 +1,166 @@
-import React, {useContext, useState, useEffect} from 'react'
-import {GlobalState} from '../../../GlobalState.jsx'
-import {Link} from 'react-router-dom'
-import axios from 'axios'
+import React, { useContext, useState, useEffect } from "react";
+import { GlobalState } from "../../../GlobalState.jsx";
+import { Link } from "react-router-dom";
+import axios from "axios";
+
+const fmt = (n) =>
+  new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(n ?? 0);
 
 function Cart() {
-    const state = useContext(GlobalState)
-    const [cart, setCart] = state.userAPI.cart
-    const [token] = state.token
-    const [total, setTotal] = useState(0)
+  const state = useContext(GlobalState);
+  const [cart, setCart] = state.userAPI.cart;
+  const [token] = state.token;
+  const [total, setTotal] = useState(0);
 
-    useEffect(() =>{
-        const getTotal = () =>{
-            const total = cart.reduce((prev, item) => {
-                return prev + (item.price * item.quantity)
-            },0)
+  useEffect(() => {
+    const t = cart.reduce((prev, item) => prev + item.price * item.quantity, 0);
+    setTotal(t);
+  }, [cart]);
 
-            setTotal(total)
-        }
+  const addToCart = async (cartNext) => {
+    await axios.patch(
+      "/user/addcart",
+      { cart: cartNext },
+      { headers: { Authorization: token } }
+    );
+  };
 
-        getTotal()
+  const increment = (id) => {
+    cart.forEach((item) => {
+      if (item._id === id) item.quantity += 1;
+    });
+    const next = [...cart];
+    setCart(next);
+    addToCart(next);
+  };
 
-    },[cart])
+  const decrement = (id) => {
+    cart.forEach((item) => {
+      if (item._id === id) item.quantity = Math.max(1, item.quantity - 1);
+    });
+    const next = [...cart];
+    setCart(next);
+    addToCart(next);
+  };
 
-    const addToCart = async (cart) =>{
-        await axios.patch('/user/addcart', {cart}, {
-            headers: {Authorization: token}
-        })
-    }
+  const removeProduct = (id) => {
+    if (!window.confirm("Remove this item from your cart?")) return;
+    const next = cart.filter((i) => i._id !== id);
+    setCart(next);
+    addToCart(next);
+  };
 
-
-    const increment = (id) =>{
-        cart.forEach(item => {
-            if(item._id === id){
-                item.quantity += 1
-            }
-        })
-
-        setCart([...cart])
-        addToCart(cart)
-    }
-
-    const decrement = (id) =>{
-        cart.forEach(item => {
-            if(item._id === id){
-                item.quantity === 1 ? item.quantity = 1 : item.quantity -= 1
-            }
-        })
-
-        setCart([...cart])
-        addToCart(cart)
-    }
-
-    const removeProduct = id =>{
-        if(window.confirm("Do you want to delete this product?")){
-            cart.forEach((item, index) => {
-                if(item._id === id){
-                    cart.splice(index, 1)
-                }
-            })
-
-            setCart([...cart])
-            addToCart(cart)
-        }
-    }
-
-    // const tranSuccess = async(payment) => {
-    //     const {paymentID, address} = payment;
-
-    //     await axios.post('/api/payment', {cart, paymentID, address}, {
-    //         headers: {Authorization: token}
-    //     })
-
-    //     setCart([])
-    //     addToCart([])
-    //     alert("You have successfully placed an order.")
-    // }
-
-
-    if(cart.length === 0) 
-        return <h2 className="text-center text-8xl">Cart Empty</h2>
-
+  if (cart.length === 0) {
     return (
-        <div>
-            {
-                cart.map(product => (
-                    <div className="w-full flex justify-around flex-wrap p-12 text-2xl max-sm:text-base max-sm:p-0 relative border border-gray-300 scale-y-[0.98]" key={product._id}>
-                        <img src={product.images.url} alt="" className="max-w-[400px] w-full my-5 h-[450px] object-cover block" />
+      <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
+        <p className="text-5xl font-extrabold text-gray-900 dark:text-white">Cart Empty</p>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">
+          Add items to your cart to start checkout.
+        </p>
+        <Link
+          to="/"
+          className="mt-6 inline-flex items-center rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-md transition hover:scale-105 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          Continue Shopping
+        </Link>
+      </div>
+    );
+  }
 
-                        <div className="max-w-[500px] w-full mx-5 my-1">
-                            <h2 className="uppercase text-blue-800 tracking-wider font-bold">{product.title}</h2>
+  return (
+    <div className="px-4 sm:px-6 lg:px-8">
+      <h1 className="mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+        Your Cart
+      </h1>
 
-                            <h3 className="text-red-600">${product.price * product.quantity}</h3>
-                            <p className="leading-6 my-2.5 opacity-80">{product.description}</p>
-                            <p className="leading-6 my-2.5 opacity-80">{product.content}</p>
-
-                            <div className="flex items-center">
-                                <button onClick={() => decrement(product._id)} className="w-10 h-10 border border-gray-500"> - </button>
-                                <span className="text-red-600 px-5">{product.quantity}</span>
-                                <button onClick={() => increment(product._id)} className="w-10 h-10 border border-gray-500"> + </button>
-                            </div>
-                            
-                            <div className="absolute top-0 right-1 text-red-600 font-black cursor-pointer" 
-                            onClick={() => removeProduct(product._id)}>
-                                X
-                            </div>
-                        </div>
-                    </div>
-                ))
-            }
-
-            <div className="w-full h-12 flex items-center justify-between">
-                <h3 className="text-red-600">Total: ${total}</h3>
-                <Link to="#!" className="bg-gray-800 text-white mt-2.5 px-6 py-2.5 inline-block uppercase tracking-wider rounded-lg">Payment</Link>
+      <div className="space-y-4">
+        {cart.map((product) => (
+          <div
+            key={product._id}
+            className="relative grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950 sm:grid-cols-[180px_1fr] sm:p-5"
+          >
+            {/* Image */}
+            <div className="aspect-[4/5] w-full overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-900 sm:h-full">
+              <img
+                src={product.images.url}
+                alt={product.title}
+                className="h-full w-full object-cover"
+              />
             </div>
+
+            {/* Details */}
+            <div className="flex min-w-0 flex-col">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="truncate text-lg font-semibold uppercase tracking-wide text-blue-800 dark:text-indigo-300">
+                    {product.title}
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                    {product.description}
+                  </p>
+                  {product.content && (
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                      {product.content}
+                    </p>
+                  )}
+                </div>
+
+                {/* Remove */}
+                <button
+                  onClick={() => removeProduct(product._id)}
+                  className="rounded-lg p-2 text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 dark:hover:bg-red-900/20"
+                  aria-label="Remove item"
+                  title="Remove"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Price + Quantity */}
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+                <div className="text-xl font-bold text-red-600">
+                  {fmt(product.price * product.quantity)}
+                </div>
+
+                <div className="flex items-center">
+                  <button
+                    onClick={() => decrement(product._id)}
+                    className="h-10 w-10 rounded-l-xl border border-gray-300 text-lg leading-none hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-700 dark:hover:bg-gray-800"
+                    aria-label="Decrease quantity"
+                  >
+                    –
+                  </button>
+                  <span className="h-10 min-w-[3rem] select-none border-y border-gray-300 px-4 text-center text-base font-semibold leading-10 text-gray-900 dark:border-gray-700 dark:text-white">
+                    {product.quantity}
+                  </span>
+                  <button
+                    onClick={() => increment(product._id)}
+                    className="h-10 w-10 rounded-r-xl border border-gray-300 text-lg leading-none hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-700 dark:hover:bg-gray-800"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Total bar */}
+      <div className="sticky bottom-0 mt-6 flex items-center justify-between rounded-2xl border border-gray-200 bg-white p-4 shadow-md backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-gray-800 dark:bg-gray-950">
+        <div className="text-lg font-semibold text-gray-900 dark:text-white">
+          Total: <span className="text-red-600">{fmt(total)}</span>
         </div>
-    )
+        <Link
+          to="#!"
+          className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-md transition hover:scale-105 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          Payment
+        </Link>
+      </div>
+    </div>
+  );
 }
 
-export default Cart
+export default Cart;

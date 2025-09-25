@@ -1,71 +1,133 @@
-import React, {useState, useEffect, useContext} from 'react'
-import {useParams} from 'react-router-dom'
-import {GlobalState} from '../../../GlobalState.jsx'
+import React, { useState, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
+import { GlobalState } from "../../../GlobalState.jsx";
+
+const fmt = (n) =>
+  new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(n ?? 0);
 
 function OrderDetails() {
-    const state = useContext(GlobalState)
-    const [history] = state.userAPI.history
-    const [orderDetails, setOrderDetails] = useState([])
+  const state = useContext(GlobalState);
+  const [history] = state.userAPI.history;
+  const [orderDetails, setOrderDetails] = useState(null);
+  const params = useParams();
 
-    const params = useParams()
+  useEffect(() => {
+    if (!params.id || !history?.length) return;
+    const found = history.find((h) => h._id === params.id);
+    setOrderDetails(found || null);
+  }, [params.id, history]);
 
-    useEffect(() => {
-        if(params.id){
-            history.forEach(item =>{
-                if(item._id === params.id) setOrderDetails(item)
-            })
-        }
-    },[params.id, history])
-
-
-    if(orderDetails.length === 0) return null;
-
+  if (!orderDetails) {
     return (
-        <div className="overflow-x-auto">
-            <table className="mx-auto w-full border border-gray-300 border-collapse">
-                <thead>
-                    <tr>
-                        <th className="text-center p-2.5 capitalize border border-gray-300">Name</th>
-                        <th className="text-center p-2.5 capitalize border border-gray-300">Address</th>
-                        <th className="text-center p-2.5 capitalize border border-gray-300">Postal Code</th>
-                        <th className="text-center p-2.5 capitalize border border-gray-300">Country Code</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr className="border border-gray-300">
-                        <td className="text-center p-2.5 capitalize border border-gray-300">{orderDetails.address.recipient_name}</td>
-                        <td className="text-center p-2.5 capitalize border border-gray-300">{orderDetails.address.line1 + " - " + orderDetails.address.city}</td>
-                        <td className="text-center p-2.5 capitalize border border-gray-300">{orderDetails.address.postal_code}</td>
-                        <td className="text-center p-2.5 capitalize border border-gray-300">{orderDetails.address.country_code}</td>
-                    </tr>
-                </tbody>
-            </table>
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <p className="text-gray-600 dark:text-gray-300">Loading order…</p>
+      </div>
+    );
+  }
 
-            <table className="mx-auto w-full border border-gray-300 border-collapse my-8">
-                <thead>
-                    <tr>
-                        <th className="text-center p-2.5 capitalize border border-gray-300"></th>
-                        <th className="text-center p-2.5 capitalize border border-gray-300">Products</th>
-                        <th className="text-center p-2.5 capitalize border border-gray-300">Quantity</th>
-                        <th className="text-center p-2.5 capitalize border border-gray-300">Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        orderDetails.cart.map(item =>(
-                        <tr key={item._id} className="border border-gray-300">
-                            <td className="text-center p-2.5 capitalize border border-gray-300"><img src={item.images.url} alt="" className="w-[70px] h-[100px] object-cover" /></td>
-                            <td className="text-center p-2.5 capitalize border border-gray-300">{item.title}</td>
-                            <td className="text-center p-2.5 capitalize border border-gray-300">{item.quantity}</td>
-                            <td className="text-center p-2.5 capitalize border border-gray-300">$ {item.price * item.quantity}</td>
-                        </tr>
-                        ))
-                    }
-                    
-                </tbody>
-            </table>
+  const addr = orderDetails.address || {};
+  const items = orderDetails.cart || [];
+  const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+  return (
+    <div className="px-4 py-8 sm:px-6 lg:px-8">
+      <h1 className="mb-6 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+        Order Details
+      </h1>
+
+      {/* Shipping */}
+      <div className="card mb-6 p-0 overflow-hidden">
+        <div className="card-header p-4">
+          <h2 className="card-title">Shipping</h2>
         </div>
-    )
+        <div className="grid gap-4 border-t border-gray-200 p-4 text-sm dark:border-gray-800 sm:grid-cols-2">
+          <div>
+            <p className="text-gray-500 dark:text-gray-400">Name</p>
+            <p className="font-medium text-gray-900 dark:text-gray-100">
+              {addr.recipient_name || "—"}
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-500 dark:text-gray-400">Address</p>
+            <p className="font-medium text-gray-900 dark:text-gray-100">
+              {[addr.line1, addr.city].filter(Boolean).join(" - ") || "—"}
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-500 dark:text-gray-400">Postal Code</p>
+            <p className="font-medium text-gray-900 dark:text-gray-100">
+              {addr.postal_code || "—"}
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-500 dark:text-gray-400">Country Code</p>
+            <p className="font-medium text-gray-900 dark:text-gray-100">
+              {addr.country_code || "—"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Items */}
+      <div className="card overflow-hidden">
+        <div className="card-header p-4">
+          <h2 className="card-title">Items</h2>
+        </div>
+
+        <div className="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+          <table className="min-w-full">
+            <thead className="bg-gray-50 text-sm text-gray-600 dark:bg-gray-900 dark:text-gray-300">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium"> </th>
+                <th className="px-4 py-3 text-left font-medium">Product</th>
+                <th className="px-4 py-3 text-center font-medium">Quantity</th>
+                <th className="px-4 py-3 text-right font-medium">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => (
+                <tr
+                  key={item._id}
+                  className="border-b border-gray-100 text-sm dark:border-gray-800"
+                >
+                  <td className="px-4 py-3">
+                    <div className="h-20 w-14 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-900">
+                      <img
+                        src={item.images?.url}
+                        alt={item.title}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 align-top">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      {item.title}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3 text-center text-gray-900 dark:text-gray-100">
+                    {item.quantity}
+                  </td>
+                  <td className="px-4 py-3 text-right font-medium text-gray-900 dark:text-gray-100">
+                    {fmt(item.price * item.quantity)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="bg-gray-50 dark:bg-gray-900">
+                <td colSpan={3} className="px-4 py-4 text-right text-sm font-semibold">
+                  Total
+                </td>
+                <td className="px-4 py-4 text-right text-lg font-bold text-red-600">
+                  {fmt(total)}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default OrderDetails
+export default OrderDetails;
