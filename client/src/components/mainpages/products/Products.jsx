@@ -1,10 +1,10 @@
 import React, {useContext, useState} from 'react'
-import {GlobalState} from '../../../GlobalState'
-import ProductItem from '../utils/productItem/ProductItem'
-import Loading from '../utils/loading/Loading'
+import {GlobalState} from '../../../GlobalState.jsx'
+import ProductItem from '../utils/productItem/ProductItem.jsx'
+import Loading from '../utils/loading/Loading.jsx'
 import axios from 'axios'
-import Filters from './Filters'
-import LoadMore from './LoadMore'
+import Filters from './Filters.jsx'
+import LoadMore from './LoadMore.jsx'
 
 
 function Products() {
@@ -63,14 +63,14 @@ function Products() {
         
         {
             isAdmin && 
-            <div className="delete-all">
-                <span>Select all</span>
-                <input type="checkbox" checked={isCheck} onChange={checkAll} />
-                <button onClick={deleteAll}>Delete ALL</button>
+            <div className="text-right my-5 max-sm:my-5">
+                <span className="uppercase text-blue-500 tracking-wider">Select all</span>
+                <input type="checkbox" checked={isCheck} onChange={checkAll} className="h-6 w-6 translate-y-1 mx-4" />
+                <button onClick={deleteAll} className="border border-red-600 px-6 py-2.5 text-red-600 uppercase">Delete ALL</button>
             </div>
         }
 
-        <div className="products">
+        <div className="w-full grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] justify-items-center my-5">
             {
                 products.map(product => {
                     return <ProductItem key={product._id} product={product}
@@ -80,7 +80,7 @@ function Products() {
         </div>
 
         <LoadMore />
-        {products.length === 0  && <h1>No Results Found</h1>}
+        {products.length === 0 && <Loading />}
         </>
     )
 }

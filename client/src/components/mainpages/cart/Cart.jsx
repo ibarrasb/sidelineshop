@@ -1,7 +1,7 @@
 import React, {useContext, useState, useEffect} from 'react'
-import {GlobalState} from '../../../GlobalState'
+import {GlobalState} from '../../../GlobalState.jsx'
+import {Link} from 'react-router-dom'
 import axios from 'axios'
-// import PaypalButton from './PaypalButton'
 
 function Cart() {
     const state = useContext(GlobalState)
@@ -78,29 +78,29 @@ function Cart() {
 
 
     if(cart.length === 0) 
-        return <h2 style={{textAlign: "center", fontSize: "5rem"}}>Cart Empty</h2> 
+        return <h2 className="text-center text-8xl">Cart Empty</h2>
 
     return (
         <div>
             {
                 cart.map(product => (
-                    <div className="detail cart" key={product._id}>
-                        <img src={product.images.url} alt="" />
+                    <div className="w-full flex justify-around flex-wrap p-12 text-2xl max-sm:text-base max-sm:p-0 relative border border-gray-300 scale-y-[0.98]" key={product._id}>
+                        <img src={product.images.url} alt="" className="max-w-[400px] w-full my-5 h-[450px] object-cover block" />
 
-                        <div className="box-detail">
-                            <h2>{product.title}</h2>
+                        <div className="max-w-[500px] w-full mx-5 my-1">
+                            <h2 className="uppercase text-blue-800 tracking-wider font-bold">{product.title}</h2>
 
-                            <h3>$ {product.price * product.quantity}</h3>
-                            <p>{product.description}</p>
-                            <p>{product.content}</p>
+                            <h3 className="text-red-600">${product.price * product.quantity}</h3>
+                            <p className="leading-6 my-2.5 opacity-80">{product.description}</p>
+                            <p className="leading-6 my-2.5 opacity-80">{product.content}</p>
 
-                            <div className="amount">
-                                <button onClick={() => decrement(product._id)}> - </button>
-                                <span>{product.quantity}</span>
-                                <button onClick={() => increment(product._id)}> + </button>
+                            <div className="flex items-center">
+                                <button onClick={() => decrement(product._id)} className="w-10 h-10 border border-gray-500"> - </button>
+                                <span className="text-red-600 px-5">{product.quantity}</span>
+                                <button onClick={() => increment(product._id)} className="w-10 h-10 border border-gray-500"> + </button>
                             </div>
                             
-                            <div className="delete" 
+                            <div className="absolute top-0 right-1 text-red-600 font-black cursor-pointer" 
                             onClick={() => removeProduct(product._id)}>
                                 X
                             </div>
@@ -109,9 +109,9 @@ function Cart() {
                 ))
             }
 
-            <div className="total">
-                <h3>Total: $ {total}</h3>
-          
+            <div className="w-full h-12 flex items-center justify-between">
+                <h3 className="text-red-600">Total: ${total}</h3>
+                <Link to="#!" className="bg-gray-800 text-white mt-2.5 px-6 py-2.5 inline-block uppercase tracking-wider rounded-lg">Payment</Link>
             </div>
         </div>
     )

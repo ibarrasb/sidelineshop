@@ -1,5 +1,5 @@
 import React, {useContext, useState} from 'react'
-import {GlobalState} from '../../GlobalState'
+import {GlobalState} from '../../GlobalState.jsx'
 import Menu from './icon/menu.svg'
 import Close from './icon/close.svg'
 import Cart from './icon/cart.svg'
@@ -50,19 +50,19 @@ function Header() {
     }
 
     return (
-        <header>
-            <div className="menu" onClick={() => setMenu(!menu)}>
+        <header className="min-h-[70px] w-full overflow-hidden flex flex-wrap justify-around items-center max-md:justify-between">
+            <div className="hidden max-md:block cursor-pointer" onClick={() => setMenu(!menu)}>
                 <img src={Menu} alt="" width="30" />
             </div>
 
-            <div className="logo">
+            <div className="flex-1 max-md:min-w-[115px] max-md:flex-none">
                 <h1>
-                    <Link className="sideline" to="/">{isAdmin ? 'Admin' : 'Sideline'}</Link>
+                    <Link className="font-dancing text-5xl ml-4 text-sideline-logo" to="/">{isAdmin ? 'Admin' : 'Sideline'}</Link>
                 </h1>
             </div>
 
-            <ul style={styleMenu}>
-                <li><Link to="/">{
+            <ul style={styleMenu} className="max-md:fixed max-md:top-0 max-md:w-full max-md:h-screen max-md:flex max-md:flex-col max-md:justify-around max-md:items-center max-md:opacity-[0.98] max-md:z-[99] max-md:text-[55px] max-md:transition-[0.5s_ease-in] max-md:py-2.5">
+                <li className="inline-block opacity-70 px-5 hover:opacity-100"><Link to="/" className="text-black">{
                     isLogged ? 'Shop' : ''
                     
             } </Link></li>
@@ -70,19 +70,19 @@ function Header() {
                 {isAdmin && adminRouter()}
 
                 {
-                    isLogged ? loggedRouter() : <li><Link onClick={() => setMenu(!menu)} to="/login">Login</Link></li>
+                    isLogged ? loggedRouter() : <li className="inline-block opacity-70 px-5 hover:opacity-100"><Link onClick={() => setMenu(!menu)} to="/login" className="text-black">Login</Link></li>
                 }
 
-                <li onClick={() => setMenu(!menu)}>
-                    <img src={Close} alt="" width="30" className="menu" />
+                <li onClick={() => setMenu(!menu)} className="inline-block opacity-70 px-5 hover:opacity-100 hidden max-md:block cursor-pointer">
+                    <img src={Close} alt="" width="30" />
                 </li>
 
             </ul>
 
             {
                 !isLogged || isAdmin ? '' 
-                :<div className="cart-icon">
-                    <span>{cart.length}</span>
+                :<div className="relative mr-5">
+                    <span className="bg-red-600 rounded-full text-white absolute -top-2.5 -right-2.5 px-1.5 py-1 text-xs">{cart.length}</span>
                     <Link to="/cart">
                         <img src={Cart} alt="" width="30" />
                     </Link>

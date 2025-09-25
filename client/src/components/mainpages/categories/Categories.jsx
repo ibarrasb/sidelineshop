@@ -1,5 +1,5 @@
 import React, {useState, useContext} from 'react'
-import {GlobalState} from '../../../GlobalState'
+import {GlobalState} from '../../../GlobalState.jsx'
 import axios from 'axios'
 
 function Categories() {
@@ -53,22 +53,23 @@ function Categories() {
     }
 
     return (
-        <div className="categories">
-            <form onSubmit={createCategory}>
-                <label htmlFor="category">Category</label>
+        <div className="max-w-[700px] flex flex-wrap justify-around mx-auto my-8">
+            <form onSubmit={createCategory} className="w-[290px] mb-5">
+                <label htmlFor="category" className="block font-bold tracking-wider uppercase mb-2.5">Category</label>
                 <input type="text" name="category" value={category} required
-                onChange={e => setCategory(e.target.value)} />
+                onChange={e => setCategory(e.target.value)} 
+                className="w-[210px] h-9 border-none outline-none border-b border-gray-600" />
 
-                <button type="submit">{onEdit? "Update" : "Create"}</button>
+                <button type="submit" className="w-[70px] h-9 bg-gray-600 text-white ml-2.5">{onEdit? "Update" : "Create"}</button>
             </form>
 
-            <div className="col">
+            <div className="w-full">
                 {
                     categories.map(category => (
-                        <div className="row" key={category._id}>
+                        <div className="min-w-[290px] flex justify-between items-center p-2.5 mb-2.5 border border-gray-300" key={category._id}>
                             <p>{category.name}</p>
                             <div>
-                                <button onClick={() => editCategory(category._id, category.name)}>Edit</button>
+                                <button onClick={() => editCategory(category._id, category.name)} className="mr-2">Edit</button>
                                 <button onClick={() => deleteCategory(category._id)}>Delete</button>
                             </div>
                         </div>

@@ -1,5 +1,5 @@
 import React, {useContext} from 'react'
-import {GlobalState} from '../../../GlobalState'
+import {GlobalState} from '../../../GlobalState.jsx'
 
 function LoadMore() {
     const state = useContext(GlobalState)
@@ -7,10 +7,10 @@ function LoadMore() {
     const [result] = state.productsAPI.result
 
     return (
-        <div className="load_more">
+        <div className="text-center">
             {
                 result < page * 9 ? ""
-                : <button onClick={() => setPage(page+1)}>Load more</button>
+                : <button onClick={() => setPage(page+1)} className="px-6 py-2.5 mb-5 border border-gray-600 capitalize">Load more</button>
             }
         </div>
     )
